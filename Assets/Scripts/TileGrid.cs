@@ -22,10 +22,33 @@ public class TileGrid : MonoBehaviour
                 _placedGrids[x, z] = obj;
             }
         }
-        //ExtendGrid(ExtentionType.Substract, ExtentionType.Substract);
     }
-
-    private void SlideOnX(GameObject[,] _targetArray, bool pIsToRight = true)
+    /// <summary>
+    /// Shifts all the object positions in 3x3 array by one position on Z axis
+    /// Discrads objects that happened to be outside the array
+    /// </summary>
+    /// <param name="pTargetArray"></param>
+    /// <param name="pIsForward"></param>
+    private void SlideOnZ(GameObject[,] pTargetArray, bool pIsForward = true)
+    {
+        for (int z = 0; z < _extents; z++)
+        {
+            for (int x = 0; x < _extents; x++)
+            {
+                if (pIsForward ? (z < _extents - 1) : (z > 0))
+                    pTargetArray[x, z] = _placedGrids[x, (pIsForward ? z + 1 : z - 1)];
+                if (z == (pIsForward ? 0 : _extents - 1))
+                    Destroy(_placedGrids[x, z]);
+            }
+        }
+    }
+    /// <summary>
+    /// Shifts all the object positions in 3x3 array by one position on X axis
+    /// Discrads objects that happened to be outside the array
+    /// </summary>
+    /// <param name="pTargetArray"></param>
+    /// <param name="pIsToRight"></param>
+    private void SlideOnX(GameObject[,] pTargetArray, bool pIsToRight = true)
     {
         for (int x = 0; x < _extents; x++)
         {
@@ -36,9 +59,9 @@ public class TileGrid : MonoBehaviour
                 //Same situation when moving to the left but we take "x - 1" position for "x" position of new array 
                 if (pIsToRight ? (x < _extents - 1) : (x > 0))
                 {
-                    _targetArray[x, z] = _placedGrids[(pIsToRight ? x + 1 : x - 1), z];
+                    pTargetArray[x, z] = _placedGrids[(pIsToRight ? x + 1 : x - 1), z];
                 }
-                if (x == (pIsToRight ? 0 : 2)) //Determines which row needs to be deleted 
+                if (x == (pIsToRight ? 0 : _extents - 1)) //Determines which row needs to be deleted 
                 {
                     Destroy(_placedGrids[x, z]);
                 }
@@ -47,8 +70,9 @@ public class TileGrid : MonoBehaviour
     }
     private void Update()
     {
+        //return;
         bool input = false;
-        GameObject[,] newObj = new GameObject[3, 3];
+        GameObject[,] newObj = new GameObject[_extents, _extents];
         if (Input.GetKeyDown(KeyCode.D))
         {
             SlideOnX(newObj);
@@ -58,6 +82,16 @@ public class TileGrid : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.A))
         {
             SlideOnX(newObj, false);
+            input = true;
+        }
+        else if (Input.GetKeyDown(KeyCode.W))
+        {
+            SlideOnZ(newObj);
+            input = true;
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
+        {
+            SlideOnZ(newObj,false);
             input = true;
         }
 
