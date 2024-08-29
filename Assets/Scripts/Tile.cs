@@ -8,7 +8,7 @@ public class Tile : MonoBehaviour
     [SerializeField] protected int _density = 10;
     private Matrix4x4[] _sunflowerPos;
     private InstancePlacer _instancePlacer;
-    private void Start()
+    protected virtual void Start()
     {
         SetUpMatrices();
         _instancePlacer = FindObjectOfType<InstancePlacer>();
