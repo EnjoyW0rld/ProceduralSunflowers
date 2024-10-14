@@ -16,7 +16,11 @@ public class Generator : MonoBehaviour
         {
             for (int z = 0; z < _gridHeight; z++)
             {
-                SpawnAtPos(x, z);
+                //SpawnAtPos(x, z);
+                TileData objToSpawn = GetTileToSpawn(x, z, _createdTiles, new List<TileData>(_tilePresets.GetTileDataCopy()));
+                TileData spawnedObject = Instantiate(objToSpawn, new Vector3(x * 2, 0, z * 2), Quaternion.identity);
+                _createdTiles[x, z] = spawnedObject;
+
             }
         }
     }
@@ -27,9 +31,9 @@ public class Generator : MonoBehaviour
         return;
         if (Input.GetKeyDown(KeyCode.V))
         {
-            SpawnAtPos(tempX, tempZ);
+            //SpawnAtPos(tempX, tempZ);
             tempZ++;
-            if(tempZ == _gridHeight)
+            if (tempZ == _gridHeight)
             {
                 tempX++;
                 tempZ = 0;
@@ -37,46 +41,34 @@ public class Generator : MonoBehaviour
         }
 
     }
-    private void SpawnAtPos(Vector3 pos)
+    public static TileData GetTileToSpawn(int pX, int pZ, TileData[,] pCreatedTiles, List<TileData> pCurrentPresets)
     {
-        List<TileData> currentPresets = new List<TileData>(_tilePresets.GetTileDataCopy());
-
-
-        Instantiate(currentPresets[Random.Range(0, currentPresets.Count)], pos, Quaternion.identity);
+        //List<TileData> currentPresets = new List<TileData>(_tilePresets.GetTileDataCopy());
+        DoChecks(pX, pZ, pCreatedTiles, pCurrentPresets);
+        return pCurrentPresets[Random.Range(0, pCurrentPresets.Count)];
     }
-    private void SpawnAtPos(int pX, int pZ)
+    private static void DoChecks(int pX, int pZ, TileData[,] pCreatedTiles, List<TileData> pCurrentPresets)
     {
-        List<TileData> currentPresets = new List<TileData>(_tilePresets.GetTileDataCopy());
-        
-        DoChecks(pX, pZ, currentPresets);
-        print(currentPresets.Count);
-        _createdTiles[pX, pZ] = Instantiate(currentPresets[Random.Range(0, currentPresets.Count)], new Vector3(pX * 2, 0, pZ * 2), Quaternion.identity);
-    }
-    private void DoChecks(int pX, int pZ, List<TileData> pCurrentPresets)
-    {
-
-        //Here is happening check if it is needed to delete the tile accoriding to the top/bottom gate
-        if (pZ - 1 >= 0 && _createdTiles[pX, pZ - 1] != null)
+        if (pZ - 1 >= 0 && pCreatedTiles[pX, pZ - 1] != null)
         {
-            //print(_createdTiles[pX, pZ - 1].GetGate(2));
-            bool topGateToDelete = !_createdTiles[pX, pZ - 1].GetGate(2);
+            //Check if bottom gate of the tile on top of the current is active
+            bool topGateToDelete = !pCreatedTiles[pX, pZ - 1].GetGate(TileData.GatePosition.Bottom);
             print(topGateToDelete + " top gate to delete");
             for (int i = pCurrentPresets.Count - 1; i >= 0; i--)
             {
-                if (pCurrentPresets[i].GetGate(0) == topGateToDelete)
+                if (pCurrentPresets[i].GetGate(TileData.GatePosition.Top) == topGateToDelete)
                 {
                     pCurrentPresets.RemoveAt(i);
                 }
             }
         }
-        //Here is happening check if it is needed to delete the tile accoriding to the right/left gate
 
-        if (pX - 1 >= 0 && _createdTiles[pX - 1, pZ] != null)
+        if (pX - 1 >= 0 && pCreatedTiles[pX - 1, pZ] != null)
         {
-            bool rightGateToDelete = !_createdTiles[pX - 1, pZ].GetGate(3);
+            bool rightGateToDelete = !pCreatedTiles[pX - 1, pZ].GetGate(TileData.GatePosition.Left);
             for (int i = pCurrentPresets.Count - 1; i >= 0; i--)
             {
-                if (pCurrentPresets[i].GetGate(1) == rightGateToDelete)
+                if (pCurrentPresets[i].GetGate(TileData.GatePosition.Right) == rightGateToDelete)
                 {
                     pCurrentPresets.RemoveAt(i);
                 }

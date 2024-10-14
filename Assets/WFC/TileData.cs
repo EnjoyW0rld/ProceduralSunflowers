@@ -20,16 +20,20 @@ public class TileData : MonoBehaviour
     [SerializeField] private bool _leftGate;
     [SerializeField, HideInInspector] private bool[] _gateValues;
 
+    public enum GatePosition { Top = 0, Right = 1, Bottom = 2, Left = 3 }
+
     public bool[] GateValue { get { return _gateValues; } }
     /// <summary>
     /// 0 = top, 1 = right, 2 = bottom, 3 = left
     /// </summary>
-    /// <param name="index"></param>
+    /// <param name="pIndex"></param>
     /// <returns></returns>
-    public bool GetGate(int index)
+    public bool GetGate(int pIndex)
     {
-        return _gateValues[index];
+        return _gateValues[pIndex];
     }
+    public bool GetGate(GatePosition pIndex) => GetGate((int)pIndex);
+
 
     private void OnValidate()
     {
